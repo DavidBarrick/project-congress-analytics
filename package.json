@@ -1,0 +1,11 @@
+{
+  "name": "project-congress-analytics",
+  "version": "1.0.0",
+  "description": "Open source analytics for Project Congress domains",
+  "dependencies": {
+    "serverless-domain-manager": "^4.2.0"
+  },
+  "devDependencies": {},
+  "author": "David Barrick <david@barrickapps.com>",
+  "license": "UNLICENSED"
+}

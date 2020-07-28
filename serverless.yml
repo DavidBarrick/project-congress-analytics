@@ -1,0 +1,65 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: project-congress-analytics
+
+plugins:
+  - serverless-domain-manager
+
+custom:
+  streamName: ${self:service.name}-${opt:stage, 'dev'}-stream
+  customDomain:
+    domainName: analytics.projectcongress.com
+    basePath: ${self:provider.stage}
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "kinesis:PutRecord"
+      Resource:
+        - Fn::GetAtt: [ KinesisCollectStream, Arn ]
+  environment:
+    STREAM_NAME: ${self:custom.streamName}
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+functions:
+  collect:
+    handler: collect.handler
+    events:
+      - http:
+          method: post
+          path: collect
+          cors: true
+
+resources:
+  Resources:
+    KinesisCollectStream:
+      Type: AWS::Kinesis::Stream
+      Properties: 
+        Name: ${self:custom.streamName}
+        RetentionPeriodHours: 24
+        ShardCount: 1
